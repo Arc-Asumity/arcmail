@@ -5,6 +5,7 @@
 // src/main.rs
 // Entry point.
 
+mod allow;
 mod conf;
 mod constants;
 mod manager;

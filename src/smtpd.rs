@@ -5,10 +5,11 @@
 // src/smtpd.rs
 // SMTP Server.
 
+use crate::allow;
 use crate::constants;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use tokio::io::AsyncWriteExt;
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::{
     net::{TcpListener, TcpStream},
     sync::watch,
@@ -80,11 +81,12 @@ impl SmtpServer {
 }
 
 pub enum SmtpSessionStatus {
-    CONNECTED,
-    HELLO,
-    EHLLO,
-    AUTH,
-    DATA,
+    Init,
+    Hello,
+    Ehllo,
+    Sender,
+    Rcpt,
+    Data,
 }
 
 pub struct SmtpSession {
@@ -93,6 +95,7 @@ pub struct SmtpSession {
     stream: TcpStream,
     status: SmtpSessionStatus,
     tls: bool,
+    client: String,
 }
 
 impl SmtpSession {
@@ -101,24 +104,71 @@ impl SmtpSession {
             domain,
             addr,
             stream,
-            status: SmtpSessionStatus::CONNECTED,
+            status: SmtpSessionStatus::Init,
             tls: false,
+            client: String::new(),
         }
     }
 
     pub async fn run(mut self) -> anyhow::Result<()> {
-        self.init().await;
+        while self.start().await? {}
         Ok(())
     }
 
-    async fn init(&mut self) -> anyhow::Result<()> {
+    async fn start(&mut self) -> anyhow::Result<bool> {
+        let (reader, mut writer) = self.stream.split();
+        let mut reader = BufReader::new(reader);
         let hello = format!(
-            "220 {} {} {}",
+            "220 {} {} {}\r\n",
             self.domain,
             constants::SMTPD_HELLO,
             constants::SMTPD_NAME
         );
-        self.stream.write_all(hello.as_bytes()).await?;
-        Ok(())
+        self.status = SmtpSessionStatus::Init;
+        writer.write_all(hello.as_bytes()).await?;
+        loop {
+            let mut line = String::new();
+            reader.read_line(&mut line).await?;
+            let line = match remove_crlf(line) {
+                Ok(line) => line,
+                Err(e) => {
+                    e.return_code(&mut writer);
+                    continue;
+                }
+            };
+            if line.is_empty() {
+                allow::SmtpError::new(500).return_code(&mut writer).await?;
+                continue;
+            }
+            let line_parts: Vec<&str> = line.split_whitespace().collect();
+            match self.status {
+                SmtpSessionStatus::Init => match line_parts[0] {
+                    "HELO" => {
+                        if line_parts.len() == 2 {
+                            self.client = line_parts[1].to_string();
+                            self.status = SmtpSessionStatus::Hello;
+                        } else {
+                            allow::SmtpError::new(501).return_code(&mut writer).await?;
+                            continue;
+                        }
+                    }
+                    _ => {
+                        allow::check_command(line_parts[0])
+                            .return_code(&mut writer)
+                            .await?;
+                    }
+                },
+                _ => {}
+            }
+        }
+        Ok(false)
+    }
+}
+
+fn remove_crlf(line: String) -> Result<String, allow::SmtpError> {
+    if !line.ends_with("\r\n") {
+        return Err(allow::SmtpError::new(500));
+    } else {
+        Ok(line.trim_end_matches("\r\n").to_string())
     }
 }
