@@ -1,8 +1,8 @@
 {
   "smtpServers": [
     {
-      "domains": ["example.com"],
-      "bind": ["0.0.0.0"],
+      "domain": "example.com",
+      "binds": ["0.0.0.0"],
       "ports": [487]
     }
   ]

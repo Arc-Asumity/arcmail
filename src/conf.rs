@@ -8,19 +8,20 @@
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::Write;
+use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SmtpServer {
-    pub domains: Vec<String>,
-    pub bind: Vec<String>,
+pub struct ConfigSmtpServer {
+    pub domain: Arc<str>,
+    pub binds: Vec<String>,
     pub ports: Vec<u16>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
-    pub smtp_servers: Vec<SmtpServer>,
+    pub smtp_servers: Vec<ConfigSmtpServer>,
 }
 
 impl Config {

@@ -5,5 +5,6 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.100"
-serde = { version = "1.0.228", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde_json = "1.0.149"
+tokio = { version = "1.49.0", features = ["net", "rt", "macros", "sync", "io-util", "signal", "rt-multi-thread"] }
