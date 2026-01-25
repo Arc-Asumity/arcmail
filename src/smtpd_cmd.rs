@@ -123,8 +123,7 @@ pub async fn run(session: &mut smtpd::SmtpSession) -> anyhow::Result<bool> {
                 "EHLO" => {
                     if line_parts.len() == 2 {
                         session.client = line_parts[1].to_string();
-                        let message =
-                            format!("250-{} Hello {}\r\n", session.config.domain, session.client);
+                        let message = format!("250-{}", session.config.domain);
                         session.writer.write_all(message.as_bytes()).await?;
                         session.status = smtpd::SmtpSessionStatus::Ehllo;
                     } else {
@@ -152,4 +151,21 @@ pub fn remove_crlf(line: &str) -> Result<String, allow::SmtpError> {
     } else {
         Ok(line.trim_end_matches("\r\n").to_string())
     }
+}
+
+pub async fn write_multi_response(
+    writer: &mut OwnedWriteHalf,
+    lines: Vec<&str>,
+) -> anyhow::Result<()> {
+    let mut lines_string: Vec<String> = lines
+        .into_iter()
+        .map(|s| format!("250-{}\r\n", s))
+        .collect();
+    if let Some(last) = lines_string.last_mut() {
+        last.replace_range(3..4, " ");
+    }
+    for line in lines_string {
+        writer.write_all(line.as_bytes()).await?;
+    }
+    Ok(())
 }
