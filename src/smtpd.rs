@@ -85,7 +85,6 @@ impl SmtpServer {
 pub enum SmtpSessionStatus {
     Init,
     Hello,
-    Ehllo,
     Sender,
     Rcpt,
     Data,

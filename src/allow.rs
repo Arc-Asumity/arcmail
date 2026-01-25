@@ -45,7 +45,7 @@ const RFC5321_COMMANDS: [&str; 11] = [
     "HELO", "EHLO", "MAIL", "RCPT", "DATA", "RSET", "NOOP", "QUIT", "VRFY", "EXPN", "HELP",
 ];
 
-const ALLOW_COMMANDS: [&str; 1] = ["HELO"];
+const ALLOW_COMMANDS: [&str; 2] = ["HELO", "EHLO"];
 
 #[inline]
 pub fn check_command(command: &str) -> SmtpError {

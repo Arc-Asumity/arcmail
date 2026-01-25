@@ -8,6 +8,7 @@
 mod allow;
 mod conf;
 mod constants;
+mod esmtpd;
 mod manager;
 mod smtpd;
 mod smtpd_cmd;

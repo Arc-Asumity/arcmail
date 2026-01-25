@@ -5,10 +5,7 @@
 // src/smtpd_cmd.rs
 // Handle SMTP Command.
 
-use crate::allow;
-use crate::conf;
-use crate::constants;
-use crate::smtpd;
+use crate::{allow, conf, constants, esmtpd, smtpd};
 use std::collections::VecDeque;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf, WriteHalf};
@@ -117,20 +114,16 @@ pub async fn run(session: &mut smtpd::SmtpSession) -> anyhow::Result<bool> {
                         allow::SmtpError::new(501)
                             .return_code(&mut session.writer)
                             .await?;
-                        continue;
                     }
                 }
                 "EHLO" => {
                     if line_parts.len() == 2 {
-                        session.client = line_parts[1].to_string();
-                        let message = format!("250-{}", session.config.domain);
-                        session.writer.write_all(message.as_bytes()).await?;
-                        session.status = smtpd::SmtpSessionStatus::Ehllo;
+                        session.client = line_parts[0].to_string();
+                        esmtpd::run(session).await?;
                     } else {
                         allow::SmtpError::new(501)
                             .return_code(&mut session.writer)
                             .await?;
-                        continue;
                     }
                 }
                 _ => {
