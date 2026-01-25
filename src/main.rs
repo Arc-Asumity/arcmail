@@ -10,6 +10,7 @@ mod conf;
 mod constants;
 mod manager;
 mod smtpd;
+mod smtpd_cmd;
 
 use tokio::sync::watch;
 
@@ -28,7 +29,7 @@ async fn init(path: &str) -> anyhow::Result<manager::ServerList> {
     for smtpd_config in &config.smtp_servers {
         let mut smtpd = smtpd::SmtpServer::new(
             smtpd_config.binds.len() * smtpd_config.ports.len(),
-            smtpd_config.domain.clone(),
+            smtpd_config.clone(),
         )?;
         for (bind, port) in smtpd_config.binds.iter().zip(smtpd_config.ports.iter()) {
             let port_str = port.to_string();

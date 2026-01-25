@@ -6,4 +6,4 @@
 // Constants during compilation.
 
 pub const SMTPD_NAME: &str = "Arcmail";
-pub const SMTPD_HELLO: &str = "ESMTP Ciallo~";
+pub const SMTPD_INFO: &str = "ESMTP";

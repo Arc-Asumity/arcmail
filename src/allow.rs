@@ -35,7 +35,7 @@ impl SmtpError {
         }
     }
 
-    pub async fn return_code(self, writer: &mut WriteHalf<'_>) -> anyhow::Result<()> {
+    pub async fn return_code(self, writer: &mut OwnedWriteHalf) -> anyhow::Result<()> {
         writer.write_all(self.message().as_bytes()).await?;
         Ok(())
     }

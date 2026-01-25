@@ -12,16 +12,24 @@ use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ConfigSmtpServerExpand {
+    pub pipe_len: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ConfigSmtpServer {
-    pub domain: Arc<str>,
+    pub domain: String,
     pub binds: Vec<String>,
     pub ports: Vec<u16>,
+    pub hello: String,
+    pub expand: ConfigSmtpServerExpand,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
-    pub smtp_servers: Vec<ConfigSmtpServer>,
+    pub smtp_servers: Vec<Arc<ConfigSmtpServer>>,
 }
 
 impl Config {
