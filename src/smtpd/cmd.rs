@@ -2,10 +2,11 @@
 // Licensed under the GPLv3 or later License.
 // See LICENSE file for details.
 //
-// src/smtpd_cmd.rs
+// src/smtpd/cmd.rs
 // Handle SMTP Command.
 
-use crate::{allow, esmtpd, smtpd};
+use super::{esmtpd, session};
+use crate::{allow, smtpd};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 use tokio::sync::mpsc;
@@ -80,7 +81,7 @@ impl BufferReader {
     }
 }
 
-pub async fn run(session: &mut smtpd::SmtpSession) -> anyhow::Result<bool> {
+pub async fn run(session: &mut session::SmtpSession) -> anyhow::Result<bool> {
     loop {
         let (line, len) = session.reader.read_line().await?;
         if len == 0 {
@@ -101,14 +102,14 @@ pub async fn run(session: &mut smtpd::SmtpSession) -> anyhow::Result<bool> {
         }
         let line_parts: Vec<&str> = line.split_whitespace().collect();
         match session.status {
-            smtpd::SmtpSessionStatus::Init => match line_parts[0] {
+            session::SmtpSessionStatus::Init => match line_parts[0] {
                 "HELO" => {
                     if line_parts.len() == 2 {
                         session.client = line_parts[1].to_string();
                         let message =
                             format!("250 {} {}\r\n", session.config.hello, session.config.domain);
                         session.writer.write_all(message.as_bytes()).await?;
-                        session.status = smtpd::SmtpSessionStatus::Hello;
+                        session.status = session::SmtpSessionStatus::Hello;
                     } else {
                         allow::SmtpError::new(501)
                             .return_code(&mut session.writer)

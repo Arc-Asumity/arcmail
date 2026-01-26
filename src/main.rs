@@ -8,10 +8,8 @@
 mod allow;
 mod conf;
 mod constants;
-mod esmtpd;
 mod manager;
 mod smtpd;
-mod smtpd_cmd;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -24,9 +22,9 @@ async fn main() -> anyhow::Result<()> {
 async fn init(path: &str) -> anyhow::Result<manager::ServerList> {
     let config = conf::Config::load_path(path)?;
 
-    let mut smtpds: Vec<smtpd::SmtpServer> = Vec::with_capacity(config.smtp_servers.len());
+    let mut smtpds: Vec<smtpd::server::SmtpServer> = Vec::with_capacity(config.smtp_servers.len());
     for smtpd_config in &config.smtp_servers {
-        let mut smtpd = smtpd::SmtpServer::new(
+        let mut smtpd = smtpd::server::SmtpServer::new(
             smtpd_config.binds.len() * smtpd_config.ports.len(),
             smtpd_config.clone(),
         )?;
@@ -47,7 +45,7 @@ fn run(servers: manager::ServerList) -> anyhow::Result<manager::ServerControl> {
     let smtpds_control = servers
         .smtpds
         .into_iter()
-        .map(|smtpd: smtpd::SmtpServer| smtpd.run())
+        .map(|smtpd: smtpd::server::SmtpServer| smtpd.run())
         .collect();
 
     Ok(manager::ServerControl { smtpds_control })

@@ -2,10 +2,11 @@
 // Licensed under the GPLv3 or later License.
 // See LICENSE file for details.
 //
-// src/smtpd.rs
-// SMTP Server.
+// src/smtpd/server.rs
+// Server of SMTPd.
 
-use crate::{conf, constants, smtpd_cmd};
+use super::{cmd, session};
+use crate::{conf, constants};
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -61,7 +62,7 @@ impl SmtpServer {
                         res = listener.accept() => {
                             match res {
                                 Ok((stream, addr)) => {
-                                    let session: SmtpSession = SmtpSession::new(config.clone(), addr, stream);
+                                    let session: session::SmtpSession = session::SmtpSession::new(config.clone(), addr, stream);
                                     tokio::spawn( async move {
                                         session.run().await;
                                     });
@@ -76,57 +77,5 @@ impl SmtpServer {
             });
         }
         self.control
-    }
-}
-
-pub enum SmtpSessionStatus {
-    Init,
-    Hello,
-    Sender,
-    Rcpt,
-    Data,
-}
-
-pub struct SmtpSession {
-    pub config: Arc<conf::ConfigSmtpServer>,
-    pub addr: SocketAddr,
-    pub reader: smtpd_cmd::LineReader,
-    pub writer: OwnedWriteHalf,
-    pub status: SmtpSessionStatus,
-    pub tls: bool,
-    pub client: String,
-}
-
-impl SmtpSession {
-    pub fn new(config: Arc<conf::ConfigSmtpServer>, addr: SocketAddr, stream: TcpStream) -> Self {
-        let (reader, writer) = stream.into_split();
-        SmtpSession {
-            config,
-            addr,
-            reader: smtpd_cmd::LineReader::Stream(smtpd_cmd::StreamReader::new(BufReader::new(
-                reader,
-            ))),
-            writer,
-            status: SmtpSessionStatus::Init,
-            tls: false,
-            client: String::new(),
-        }
-    }
-
-    pub async fn run(mut self) -> anyhow::Result<()> {
-        while self.start().await? {}
-        Ok(())
-    }
-
-    async fn start(&mut self) -> anyhow::Result<bool> {
-        let hello = format!(
-            "220 {} {} {}\r\n",
-            self.config.domain,
-            constants::SMTPD_INFO,
-            constants::SMTPD_NAME
-        );
-        self.status = SmtpSessionStatus::Init;
-        self.writer.write_all(hello.as_bytes()).await?;
-        smtpd_cmd::run(self).await
     }
 }

@@ -5,7 +5,7 @@
 // src/manager.rs
 // Manager Thread.
 
-use crate::smtpd;
+use crate::smtpd::server;
 use tokio::sync::watch;
 
 trait Control {
@@ -13,7 +13,7 @@ trait Control {
 }
 
 pub struct ServerControl {
-    pub smtpds_control: Vec<watch::Sender<smtpd::SmtpServerControl>>,
+    pub smtpds_control: Vec<watch::Sender<server::SmtpServerControl>>,
 }
 
 impl ServerControl {
@@ -23,5 +23,5 @@ impl ServerControl {
 }
 
 pub struct ServerList {
-    pub smtpds: Vec<smtpd::SmtpServer>,
+    pub smtpds: Vec<server::SmtpServer>,
 }
