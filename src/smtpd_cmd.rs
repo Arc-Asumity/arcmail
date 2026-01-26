@@ -5,10 +5,9 @@
 // src/smtpd_cmd.rs
 // Handle SMTP Command.
 
-use crate::{allow, conf, constants, esmtpd, smtpd};
-use std::collections::VecDeque;
+use crate::{allow, esmtpd, smtpd};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf, WriteHalf};
+use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 use tokio::sync::mpsc;
 
 pub enum LineReader {

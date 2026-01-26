@@ -13,8 +13,6 @@ mod manager;
 mod smtpd;
 mod smtpd_cmd;
 
-use tokio::sync::watch;
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let server_list = init("example/arcmail.json").await?;

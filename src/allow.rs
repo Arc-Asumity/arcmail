@@ -6,7 +6,7 @@
 // Check Command.
 
 use tokio::io::AsyncWriteExt;
-use tokio::net::tcp::{OwnedWriteHalf, WriteHalf};
+use tokio::net::tcp::OwnedWriteHalf;
 
 pub enum SmtpError {
     SyntaxError(&'static str),

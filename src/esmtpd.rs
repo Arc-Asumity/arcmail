@@ -5,10 +5,8 @@
 // src/esmtpd.rs
 // Expand SMTP Server.
 
-use crate::allow;
 use crate::smtpd;
 use crate::smtpd_cmd;
-use tokio::net::tcp::OwnedWriteHalf;
 
 pub enum EsmtpStatus {
     Empty,

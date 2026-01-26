@@ -5,13 +5,10 @@
 // src/smtpd.rs
 // SMTP Server.
 
-use crate::allow;
-use crate::conf;
-use crate::constants;
-use crate::smtpd_cmd;
+use crate::{conf, constants, smtpd_cmd};
 use std::net::SocketAddr;
 use std::sync::Arc;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::io::{AsyncWriteExt, BufReader};
 use tokio::{
     net::{TcpListener, TcpStream, tcp::OwnedWriteHalf},
     sync::watch,
@@ -55,8 +52,8 @@ impl SmtpServer {
                     tokio::select! {
                         control = rx.changed() => {
                             match control {
-                                Initialize => {}
-                                Shutdown => {
+                                _Initialize => {}
+                                _Shutdown => {
                                     break;
                                 }
                             }
@@ -69,7 +66,7 @@ impl SmtpServer {
                                         session.run().await;
                                     });
                                 }
-                                Err(e) => {
+                                Err(_e) => {
                                     //TODO ERR
                                 }
                             }
@@ -102,7 +99,7 @@ pub struct SmtpSession {
 
 impl SmtpSession {
     pub fn new(config: Arc<conf::ConfigSmtpServer>, addr: SocketAddr, stream: TcpStream) -> Self {
-        let (reader, mut writer) = stream.into_split();
+        let (reader, writer) = stream.into_split();
         SmtpSession {
             config,
             addr,
