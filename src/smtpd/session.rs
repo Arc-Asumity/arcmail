@@ -9,10 +9,7 @@ use super::{cmd, stream, util};
 use crate::{allow, conf, constants};
 use std::net::SocketAddr;
 use std::sync::Arc;
-use tokio::io::{AsyncWriteExt, BufReader};
 use tokio::net::TcpStream;
-use tokio::net::tcp::OwnedWriteHalf;
-use tokio::sync::mpsc;
 
 pub enum SmtpSessionStatus {
     Start,

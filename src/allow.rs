@@ -5,8 +5,6 @@
 // src/allow.rs
 // Check Command.
 
-use tokio::io::AsyncWriteExt;
-use tokio::net::tcp::OwnedWriteHalf;
 use tokio::sync::mpsc;
 
 pub enum SmtpError {

@@ -5,15 +5,10 @@
 // src/smtpd/server.rs
 // Server of SMTPd.
 
-use super::{cmd, session};
-use crate::{conf, constants};
-use std::net::SocketAddr;
+use super::session;
+use crate::conf;
 use std::sync::Arc;
-use tokio::io::{AsyncWriteExt, BufReader};
-use tokio::{
-    net::{TcpListener, TcpStream, tcp::OwnedWriteHalf},
-    sync::watch,
-};
+use tokio::{net::TcpListener, sync::watch};
 
 #[derive(Debug)]
 pub enum SmtpServerControl {
@@ -64,7 +59,7 @@ impl SmtpServer {
                                 Ok((stream, addr)) => {
                                     let session: session::SmtpSession = session::SmtpSession::new(config.clone(), addr, stream);
                                     tokio::spawn( async move {
-                                        session.run().await;
+                                        let _ = session.run().await;
                                     });
                                 }
                                 Err(_e) => {

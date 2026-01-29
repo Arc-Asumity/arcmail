@@ -138,7 +138,7 @@ impl TcpSmtpStream {
 
     pub async fn stop(&mut self) -> anyhow::Result<()> {
         let _ = self.control.send(SmtpStreamControl::Shutdown);
-        let mut stream = match self.handler.take() {
+        let stream = match self.handler.take() {
             Some(handler) => handler.await?,
             None => return Ok(()),
         };

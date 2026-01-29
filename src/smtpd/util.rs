@@ -5,11 +5,7 @@
 // src/smtpd/util.rs
 // Tools of SMTPd.
 
-use crate::allow;
-use tokio::io::AsyncBufReadExt;
-use tokio::io::AsyncRead;
-use tokio::io::BufReader;
-use tokio::net::tcp::WriteHalf;
+use tokio::io::{AsyncBufReadExt, AsyncRead, BufReader};
 use tokio::sync::mpsc;
 
 pub enum UtilReadError {

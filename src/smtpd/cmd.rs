@@ -5,11 +5,8 @@
 // src/smtpd/cmd.rs
 // Handle SMTP Command.
 
-use super::{esmtpd, session};
-use crate::{allow, smtpd};
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
-use tokio::sync::mpsc;
+use super::session;
+use crate::allow;
 
 pub async fn global_command(
     session: &mut session::SmtpSession,
@@ -22,7 +19,7 @@ pub async fn global_command(
                 let message = format!("250 {} {}\r\n", session.config.hello, session.config.domain);
                 session.stream.get_writer().send(message).await?;
                 session.status = session::SmtpSessionStatus::Hello;
-                session.stream.clear();
+                session.stream.clear().await;
             } else {
                 allow::SmtpError::new(501)
                     .return_code(session.stream.get_writer())
@@ -55,7 +52,7 @@ pub async fn global_command(
                     .get_writer()
                     .send(String::from("221 2.0.0 Bye\r\n"))
                     .await?;
-                session.stream.stop();
+                let _ = session.stream.stop().await;
             } else {
                 allow::SmtpError::new(501)
                     .return_code(session.stream.get_writer())
@@ -66,7 +63,7 @@ pub async fn global_command(
         "RSET" => {
             if para.len() == 1 {
                 session.status = session::SmtpSessionStatus::Start;
-                session.stream.clear();
+                session.stream.clear().await;
             } else {
                 allow::SmtpError::new(501)
                     .return_code(session.stream.get_writer())

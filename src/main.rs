@@ -15,7 +15,7 @@ mod smtpd;
 async fn main() -> anyhow::Result<()> {
     let server_list = init("example/arcmail.json").await?;
     let server_control = run(server_list)?;
-    sleep(server_control).await;
+    let _ = sleep(server_control).await;
     Ok(())
 }
 

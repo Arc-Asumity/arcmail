@@ -5,7 +5,7 @@
 // src/smtpd/esmtpd.rs
 // Expand SMTP Server.
 
-use super::{cmd, session, util};
+use super::{session, util};
 
 pub enum EsmtpStatus {
     Empty,
