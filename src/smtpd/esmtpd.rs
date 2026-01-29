@@ -5,7 +5,7 @@
 // src/smtpd/esmtpd.rs
 // Expand SMTP Server.
 
-use crate::smtpd::{cmd, session};
+use super::{cmd, session, util};
 
 pub enum EsmtpStatus {
     Empty,
@@ -16,7 +16,7 @@ const ALLOW_EXPEND_MESSAGE: [&str; 1] = [""];
 pub async fn run(session: &mut session::SmtpSession) -> anyhow::Result<()> {
     let mut messages = ALLOW_EXPEND_MESSAGE.to_vec();
     messages[0] = &session.config.domain;
-    cmd::write_multi_response(&mut session.writer, messages).await?;
+    util::write_multi_response(session.stream.get_writer(), messages).await?;
     session.status = session::SmtpSessionStatus::Hello;
     Ok(())
 }

@@ -13,7 +13,8 @@ use std::sync::Arc;
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConfigSmtpServerExpand {
-    pub pipe_len: usize,
+    pub pipe_rx_len: usize,
+    pub pipe_tx_len: usize,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

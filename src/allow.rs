@@ -7,6 +7,7 @@
 
 use tokio::io::AsyncWriteExt;
 use tokio::net::tcp::OwnedWriteHalf;
+use tokio::sync::mpsc;
 
 pub enum SmtpError {
     SyntaxError(&'static str),
@@ -35,9 +36,13 @@ impl SmtpError {
         }
     }
 
-    pub async fn return_code(self, writer: &mut OwnedWriteHalf) -> anyhow::Result<()> {
-        writer.write_all(self.message().as_bytes()).await?;
+    pub async fn return_code(self, writer: mpsc::Sender<String>) -> anyhow::Result<()> {
+        writer.send(self.message().to_string()).await?;
         Ok(())
+    }
+
+    pub async fn get_message_bytes(code: u16) -> Vec<u8> {
+        Self::new(code).message().as_bytes().to_vec()
     }
 }
 
@@ -45,7 +50,7 @@ const RFC5321_COMMANDS: [&str; 11] = [
     "HELO", "EHLO", "MAIL", "RCPT", "DATA", "RSET", "NOOP", "QUIT", "VRFY", "EXPN", "HELP",
 ];
 
-const ALLOW_COMMANDS: [&str; 2] = ["HELO", "EHLO"];
+const ALLOW_COMMANDS: [&str; 3] = ["HELO", "RSET", "QUTI"];
 
 #[inline]
 pub fn check_command(command: &str) -> SmtpError {

@@ -6,7 +6,8 @@
       "ports": [487],
       "hello": "Ciallo",
       "expand": {
-        "pipeLen": 100
+        "pipeRxLen": 100,
+        "pipeTxLen": 100
       }
     }
   ]
