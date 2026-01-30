@@ -50,7 +50,6 @@ pub async fn global_command(
                     .get_writer()
                     .send(String::from("221 2.0.0 Bye\r\n"))
                     .await?;
-                let _ = session.stream.stop().await;
             } else {
                 allow::SmtpError::new(501)
                     .return_code(session.stream.get_writer())
