@@ -5,8 +5,8 @@
 // src/smtpd/session.rs
 // Session of SMTPd.
 
-use super::{cmd, stream, util};
-use crate::{allow, conf, constants};
+use super::{allow, cmd, stream, util};
+use crate::{conf, constants};
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::net::TcpStream;

@@ -5,6 +5,7 @@
 // src/smtpd/mod.rs
 // SMTPd module.
 
+mod allow;
 mod cmd;
 mod esmtpd;
 pub mod server;

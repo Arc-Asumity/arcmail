@@ -5,8 +5,8 @@
 // src/smtpd/cmd.rs
 // Handle SMTP Command.
 
-use super::session;
-use crate::{allow, constants};
+use super::{allow, session};
+use crate::constants;
 
 pub async fn global_command(
     session: &mut session::SmtpSession,

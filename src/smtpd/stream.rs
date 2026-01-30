@@ -5,11 +5,9 @@
 // Stream of SMTPd.
 
 use super::util;
-use tokio::io::AsyncWriteExt;
-use tokio::io::BufReader;
+use tokio::io::{AsyncWriteExt, BufReader};
 use tokio::net::TcpStream;
-use tokio::sync::mpsc;
-use tokio::sync::watch;
+use tokio::sync::{mpsc, watch};
 use tokio::task;
 use tokio_rustls::server::TlsStream;
 

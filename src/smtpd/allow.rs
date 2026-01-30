@@ -2,8 +2,8 @@
 // Licensed under the GPLv3 or later License.
 // See LICENSE file for details.
 //
-// src/allow.rs
-// Check Command.
+// src/smtpd/allow.rs
+// Check Command of SMTPd.
 
 use tokio::sync::mpsc;
 
