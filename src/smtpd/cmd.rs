@@ -6,7 +6,7 @@
 // Handle SMTP Command.
 
 use super::session;
-use crate::allow;
+use crate::{allow, constants};
 
 pub async fn global_command(
     session: &mut session::SmtpSession,
@@ -25,11 +25,10 @@ pub async fn global_command(
                     .return_code(session.stream.get_writer())
                     .await?;
             }
-            Ok(true)
         }
         "EHLO" => {
             //TODO
-            Ok(false)
+            return Ok(false);
         }
         "NOOP" => {
             if para.len() != 1 {
@@ -42,7 +41,6 @@ pub async fn global_command(
                 .get_writer()
                 .send(String::from("250 2.0.0 OK\r\n"))
                 .await?;
-            Ok(true)
         }
         "QUIT" => {
             if para.len() == 1 {
@@ -58,7 +56,6 @@ pub async fn global_command(
                     .return_code(session.stream.get_writer())
                     .await?;
             }
-            Ok(true)
         }
         "RSET" => {
             if para.len() == 1 {
@@ -69,18 +66,21 @@ pub async fn global_command(
                     .return_code(session.stream.get_writer())
                     .await?;
             }
-            Ok(true)
         }
         "VRFY" => {
             //TODO
-            Ok(false)
+            return Ok(false);
         }
         "HELP" => {
-            //TODO
-            Ok(false)
+            if para.len() == 1 {
+                session
+                    .stream
+                    .get_writer()
+                    .send(String::from(constants::SMTPD_HELP))
+                    .await?;
+            }
         }
-        _ => Ok(false),
+        _ => return Ok(false),
     }
+    Ok(true)
 }
-
-//pub async fn global_extand_command()
