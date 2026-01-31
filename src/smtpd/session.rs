@@ -6,6 +6,7 @@
 // Session of SMTPd.
 
 use super::{allow, cmd, stream, util};
+use crate::smtpd::stream::common::SmtpStreamTrait;
 use crate::{conf, constants};
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -24,7 +25,7 @@ pub enum SmtpSessionStatus {
 pub struct SmtpSession {
     pub config: Arc<conf::ConfigSmtpServer>,
     pub addr: SocketAddr,
-    pub stream: stream::SmtpStream,
+    pub stream: stream::common::SmtpStream,
     pub status: SmtpSessionStatus,
     pub tls: bool,
     pub client: String,
@@ -37,7 +38,7 @@ impl SmtpSession {
         SmtpSession {
             config,
             addr,
-            stream: stream::SmtpStream::Tcp(stream::TcpSmtpStream::new(stream, tx_len, rx_len)),
+            stream: stream::common::SmtpStream::new(stream, tx_len, rx_len),
             status: SmtpSessionStatus::Start,
             tls: false,
             client: String::new(),

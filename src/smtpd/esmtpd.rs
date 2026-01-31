@@ -6,6 +6,7 @@
 // Expand SMTP Server.
 
 use super::{session, util};
+use crate::smtpd::stream::common::SmtpStreamTrait;
 
 pub enum EsmtpStatus {
     Empty,

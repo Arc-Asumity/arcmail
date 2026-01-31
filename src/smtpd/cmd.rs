@@ -7,6 +7,7 @@
 
 use super::{allow, session};
 use crate::constants;
+use crate::smtpd::stream::common::SmtpStreamTrait;
 
 pub async fn global_command(
     session: &mut session::SmtpSession,
@@ -19,7 +20,7 @@ pub async fn global_command(
                 let message = format!("250 {} {}\r\n", session.config.hello, session.config.domain);
                 session.stream.get_writer().send(message).await?;
                 session.status = session::SmtpSessionStatus::Hello;
-                session.stream.clear().await;
+                session.stream.clear();
             } else {
                 allow::SmtpError::new(501)
                     .return_code(session.stream.get_writer())
@@ -59,7 +60,7 @@ pub async fn global_command(
         "RSET" => {
             if para.len() == 1 {
                 session.status = session::SmtpSessionStatus::Start;
-                session.stream.clear().await;
+                session.stream.clear();
             } else {
                 allow::SmtpError::new(501)
                     .return_code(session.stream.get_writer())
